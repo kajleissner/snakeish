@@ -404,9 +404,9 @@
                 <h2>Snakeish!</h2>
                 <p>Eat apples, avoid bombs</p>
                 <p style="font-size: 14px; margin-top: 10px; color: #888;">New items unlock each level!</p>
-                <p style="margin-top: 15px; font-size: 16px;">Arrow keys / WASD to move</p>
-                <p style="margin-top: 5px; font-size: 16px;">P or ESC to pause</p>
-                <p style="margin-top: 20px; font-size: 22px; color: #4a4a4a;">Press SPACE to start</p>
+                <p style="margin-top: 15px; font-size: 16px;" class="move-hint">Arrow keys / WASD to move</p>
+                <p style="margin-top: 5px; font-size: 16px;" class="pause-hint">P or ESC to pause</p>
+                <p style="margin-top: 20px; font-size: 22px; color: #4a4a4a;" class="start-hint">Press SPACE to start</p>
                 <button class="btn" id="showHighScoresBtn" style="margin-top: 15px;">High Scores</button>
             </div>
 
@@ -2027,13 +2027,33 @@
         // Update hints for touch devices
         if (isTouchDevice) {
             document.querySelector('.controls-hint').textContent = 'swipe to move • tap to start/pause';
-            const startHint = document.querySelector('#startScreen p[style*="22px"]');
+            const startHint = document.querySelector('.start-hint');
             if (startHint) startHint.textContent = 'Tap to start';
-            const moveHint = document.querySelector('#startScreen p[style*="margin-top: 15px"][style*="16px"]');
+            const moveHint = document.querySelector('.move-hint');
             if (moveHint) moveHint.textContent = 'Swipe to move';
-            const pauseHint = document.querySelector('#pauseScreen p');
-            if (pauseHint) pauseHint.textContent = 'Tap to continue';
+            const pauseHintEl = document.querySelector('.pause-hint');
+            if (pauseHintEl) pauseHintEl.textContent = 'Tap to pause';
+            const pauseScreen = document.querySelector('#pauseScreen p');
+            if (pauseScreen) pauseScreen.textContent = 'Tap to continue';
         }
+
+        // Touch support on overlays (start/pause screens sit on top of canvas)
+        document.getElementById('gameContainer').addEventListener('touchstart', (e) => {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+        });
+        document.getElementById('gameContainer').addEventListener('touchend', (e) => {
+            if (!gameRunning) {
+                if (!document.getElementById('highScoresScreen').classList.contains('hidden')) {
+                    showScreen('startScreen');
+                    return;
+                }
+                startGame();
+                return;
+            }
+            if (paused) {
+                togglePause();
+            }
+        });
     })();
     </script>
 </body>
